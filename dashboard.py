@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# Load data hasil cleaning (FIX PATH)
+# Load data
 base_dir = os.path.dirname(__file__)
 file_path = os.path.join(base_dir, 'main_data.csv')
 
@@ -13,16 +13,40 @@ day_df['dteday'] = pd.to_datetime(day_df['dteday'])
 
 st.title("🚲 Bike Sharing Dashboard")
 
-# Filter
-season = st.selectbox("Pilih Musim", day_df['season'].unique())
-filtered_df = day_df[day_df['season'] == season]
+# ======================
+# FILTER
+# ======================
+season_options = ['All'] + sorted(day_df['season'].unique())
+selected_season = st.selectbox("Pilih Musim", season_options)
 
-# Line chart
-st.subheader("Tren Penyewaan")
+if selected_season == 'All':
+    filtered_df = day_df
+else:
+    filtered_df = day_df[day_df['season'] == selected_season]
+
+# ======================
+# VISUALISASI 1 (TREND)
+# ======================
+st.subheader("📈 Tren Penyewaan Sepeda")
+
 st.line_chart(filtered_df.set_index('dteday')['cnt'])
 
-# Bar chart
-st.subheader("Rata-rata Penyewaan per Musim")
-fig, ax = plt.subplots()
-sns.barplot(data=day_df, x='season', y='cnt', ax=ax)
-st.pyplot(fig)
+# ======================
+# VISUALISASI 2 (MUSIM)
+# ======================
+st.subheader("📊 Penyewaan Berdasarkan Musim")
+
+fig1, ax1 = plt.subplots()
+sns.barplot(data=filtered_df, x='season', y='cnt', ax=ax1)
+ax1.set_title("Rata-rata Penyewaan per Musim")
+st.pyplot(fig1)
+
+# ======================
+# VISUALISASI 3 (CUACA)
+# ======================
+st.subheader("🌤️ Penyewaan Berdasarkan Cuaca")
+
+fig2, ax2 = plt.subplots()
+sns.barplot(data=filtered_df, x='weathersit', y='cnt', ax=ax2)
+ax2.set_title("Rata-rata Penyewaan berdasarkan Cuaca")
+st.pyplot(fig2)
